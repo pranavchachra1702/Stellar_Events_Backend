@@ -37,8 +37,8 @@ This repository contains a FastAPI-based backend service for managing events, bo
 ### Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/pranavchachra1702/Stellar_Events_Backend.git
+cd Stellar_Events_Backend
 ```
 
 ### Environment Variables
