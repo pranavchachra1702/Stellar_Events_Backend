@@ -11,6 +11,17 @@ app.include_router(bookings.router)
 app.include_router(admin.router)
 app.include_router(users.router)
 
+# Root endpoint for Render health check and general info
+@app.get("/")
+async def root():
+    return {"message": "Stellar Events Backend is running"}
+
+
+# Optional dedicated health check endpoint
+@app.get("/healthz")
+async def health_check():
+    return {"status": "ok"}
+
 @app.on_event('startup')
 async def on_startup():
     await init_pool()
