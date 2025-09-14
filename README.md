@@ -1,18 +1,78 @@
 # Atlan Backend Challenge (2025)
 
-This repository contains a FastAPI-based backend service for managing events, bookings, and users. It demonstrates core features such as event creation, ticket booking with concurrency-safe inventory handling, user management, and analytics.
+## 🌟 Context
+
+Large-scale events often see **thousands of people rushing to book tickets at the same time**.  
+Behind the scenes, this requires:
+
+- Handling **concurrency** & preventing overselling.
+- Scaling during **traffic spikes**.
+- Providing **real-time analytics** to organizers.
+
+This backend — **Evently** — powers such a platform, enabling:
+
+- Users to browse events, book tickets, and track bookings.
+- Admins to manage events and view insights.
 
 ---
 
-## Features
+## 🚀 Features
 
-* **User Management**: Create, list, and delete users.
-* **Event Management**: Create, update, list, and delete events.
-* **Booking System**: Book and cancel tickets with idempotency support.
-* **Analytics**: View total bookings and utilization per event.
-* **Database**: PostgreSQL with materialized views for analytics.
+- **User Management**
+  - Create, list, and delete users.
+- **Event Management**
+  - Create, update, list, and delete events.
+- **Ticket Booking**
+  - Safe, concurrency-aware booking with idempotency.
+  - Cancel confirmed bookings and free up inventory.
+- **Analytics**
+  - Event utilization and booking statistics via materialized views.
+- **Database Design**
+  - PostgreSQL schema with constraints, indexes, and views.
+- **Optional Health Checks**
+  - `/` and `/healthz` endpoints for platform readiness.
 
 ---
+
+## 🏗️ System Design
+
+### 1. Concurrency & Race Conditions
+- **Optimistic locking + transactions** ensure ticket counts are never oversold.
+- Every booking updates inventory atomically:
+  - `seats_available` decreases
+  - `seats_reserved` increases
+- Idempotency keys prevent duplicate bookings on retries.
+
+### 2. Database Design
+- **Normalized schema** for `users`, `events`, `bookings`, and `inventory`.
+- **Materialized views** provide fast analytics queries.
+- **Indexes** on event time, bookings, and inventory optimize high-traffic workloads.
+
+### 3. Scalability
+- Built with **asyncpg** for high-throughput DB access.
+- REST APIs designed to support **thousands of concurrent requests**.
+- Indexing + caching opportunities discussed (e.g., Redis for hot stats).
+
+### 4. APIs
+- RESTful endpoints for all core features.
+- Rich error handling (`404`, `409`, `422`, etc.).
+- Interactive **Swagger/OpenAPI docs** at `/docs`.
+
+---
+### 🌍 Deployed API (Live)
+
+This project is deployed on Render:
+
+* Base URL: 
+```
+https://stellar-events-backend.onrender.com
+```
+
+* Swagger/OpenAPI docs: 
+```
+https://stellar-events-backend.onrender.com/docs
+```
+
 
 ## Tech Stack
 
@@ -24,7 +84,13 @@ This repository contains a FastAPI-based backend service for managing events, bo
 
 ---
 
-## Getting Started (Local Development)
+### High-Level Architecture Diagram 
+
+
+![Architecture Diagram](docs/Architecture_Diagram.png)
+
+---
+## ⚡ Getting Started (Local Development)
 
 ### Prerequisites
 
@@ -41,7 +107,48 @@ git clone https://github.com/pranavchachra1702/Stellar_Events_Backend.git
 cd Stellar_Events_Backend
 ```
 
-### Environment Variables
+### Option 1: Run with Docker Compose
+The repository includes a docker-compose.yml for local development:
+```bash
+docker-compose up --build
+
+```
+This will start:
+
+* PostgreSQL database on port 5432
+
+* FastAPI backend on port 8000
+
+* API docs will be available at:
+
+```
+http://localhost:8000/docs
+```
+
+### Option 2: Run with Virtual Environment (without Docker)
+
+1. Create a virtual environment:
+```bash
+python3 -m venv venv
+```
+2. Activate the environment
+
+Linux/Mac:
+```
+source venv/bin/activate
+```
+
+Windows (PowerShell):
+```
+.\venv\Scripts\Activate
+```
+
+3. Install dependencies using:
+```
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+4. Environment Variables
 
 Create a `.env` file for local development based on `.env.example`:
 
@@ -52,26 +159,16 @@ INIT_DB=true
 
 ---
 
-### Running with Docker Compose
-
-The repository includes a `docker-compose.yml` for local development:
-
-```bash
-docker-compose up --build
+5. Run the backend
+```
+uvicorn app.main:app --reload
 ```
 
-This will start:
-
-* **PostgreSQL** database on port `5432`
-* **FastAPI backend** on port `8000`
-
-You can access the API docs at:
+API docs will be available at:
 
 ```
 http://localhost:8000/docs
 ```
-
----
 
 ### Database
 
@@ -86,7 +183,11 @@ POSTGRES_DB: evently
 ```
 
 ---
+### 📊 ER Diagram
+![ER Diagram](docs/ER_Diagram.png)
 
+
+---
 ### API Endpoints (Overview)
 
 #### Users
